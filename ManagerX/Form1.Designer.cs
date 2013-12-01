@@ -57,6 +57,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.butEstablished = new System.Windows.Forms.Button();
             this.comboReq = new System.Windows.Forms.ComboBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // butConn
@@ -151,7 +152,7 @@
             this.txtVciIn.Name = "txtVciIn";
             this.txtVciIn.Size = new System.Drawing.Size(60, 20);
             this.txtVciIn.TabIndex = 11;
-            this.txtVciIn.Text = "*";
+            this.txtVciIn.Text = "0";
             // 
             // txtVciOut
             // 
@@ -159,7 +160,7 @@
             this.txtVciOut.Name = "txtVciOut";
             this.txtVciOut.Size = new System.Drawing.Size(60, 20);
             this.txtVciOut.TabIndex = 12;
-            this.txtVciOut.Text = "*";
+            this.txtVciOut.Text = "0";
             // 
             // label1
             // 
@@ -306,11 +307,21 @@
             this.comboReq.Size = new System.Drawing.Size(121, 21);
             this.comboReq.TabIndex = 28;
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(305, 146);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(55, 13);
+            this.label13.TabIndex = 29;
+            this.label13.Text = "Requests:";
+            // 
             // ManagerX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(441, 576);
+            this.Controls.Add(this.label13);
             this.Controls.Add(this.comboReq);
             this.Controls.Add(this.butEstablished);
             this.Controls.Add(this.label12);
@@ -379,6 +390,7 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Button butEstablished;
         private System.Windows.Forms.ComboBox comboReq;
+        private System.Windows.Forms.Label label13;
     }
 }
 
