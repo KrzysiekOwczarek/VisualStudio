@@ -686,7 +686,7 @@ namespace ManagerX
             catch { return false; }
         }
 
-        //Deserializaja
+        
         private void ClientReceiver()
         {
             try
