@@ -690,7 +690,7 @@ namespace ManagerX
         private void ClientReceiver()
         {
             try
-            { // tylko wyświetla tekst w przeslanym pakiecie, nie przekazuje tego dalej
+            {
 
                 System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(netStream);
                 System.IO.StreamReader streamReader = new System.IO.StreamReader(netStream);
