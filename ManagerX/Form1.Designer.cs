@@ -58,11 +58,15 @@
             this.butEstablished = new System.Windows.Forms.Button();
             this.comboReq = new System.Windows.Forms.ComboBox();
             this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.comboTunnel = new System.Windows.Forms.ComboBox();
+            this.butDisconnect = new System.Windows.Forms.Button();
+            this.butClearNode = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // butConn
             // 
-            this.butConn.Location = new System.Drawing.Point(354, 32);
+            this.butConn.Location = new System.Drawing.Point(301, 30);
             this.butConn.Name = "butConn";
             this.butConn.Size = new System.Drawing.Size(75, 23);
             this.butConn.TabIndex = 0;
@@ -86,38 +90,40 @@
             // 
             // txtLog
             // 
-            this.txtLog.Location = new System.Drawing.Point(9, 470);
+            this.txtLog.Location = new System.Drawing.Point(9, 467);
             this.txtLog.Name = "txtLog";
-            this.txtLog.Size = new System.Drawing.Size(420, 85);
+            this.txtLog.Size = new System.Drawing.Size(367, 85);
             this.txtLog.TabIndex = 3;
             this.txtLog.Text = "";
             // 
             // txtReceive
             // 
-            this.txtReceive.Location = new System.Drawing.Point(9, 350);
+            this.txtReceive.Location = new System.Drawing.Point(9, 363);
             this.txtReceive.Name = "txtReceive";
-            this.txtReceive.Size = new System.Drawing.Size(420, 85);
+            this.txtReceive.Size = new System.Drawing.Size(367, 85);
             this.txtReceive.TabIndex = 4;
             this.txtReceive.Text = "";
             // 
             // comboConn
             // 
             this.comboConn.FormattingEnabled = true;
-            this.comboConn.Location = new System.Drawing.Point(12, 80);
+            this.comboConn.Location = new System.Drawing.Point(15, 151);
             this.comboConn.Name = "comboConn";
             this.comboConn.Size = new System.Drawing.Size(56, 21);
             this.comboConn.TabIndex = 5;
+            this.comboConn.SelectedIndexChanged += new System.EventHandler(this.comboConn_SelectedIndexChanged);
             // 
             // txtPortIn
             // 
-            this.txtPortIn.Location = new System.Drawing.Point(12, 128);
+            this.txtPortIn.Location = new System.Drawing.Point(81, 154);
             this.txtPortIn.Name = "txtPortIn";
-            this.txtPortIn.Size = new System.Drawing.Size(60, 20);
+            this.txtPortIn.Size = new System.Drawing.Size(56, 20);
             this.txtPortIn.TabIndex = 6;
+            this.txtPortIn.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtPortIn_KeyPress);
             // 
             // butAdd
             // 
-            this.butAdd.Location = new System.Drawing.Point(354, 80);
+            this.butAdd.Location = new System.Drawing.Point(301, 151);
             this.butAdd.Name = "butAdd";
             this.butAdd.Size = new System.Drawing.Size(75, 23);
             this.butAdd.TabIndex = 7;
@@ -127,40 +133,43 @@
             // 
             // txtVpiIn
             // 
-            this.txtVpiIn.Location = new System.Drawing.Point(78, 128);
+            this.txtVpiIn.Location = new System.Drawing.Point(148, 154);
             this.txtVpiIn.Name = "txtVpiIn";
-            this.txtVpiIn.Size = new System.Drawing.Size(60, 20);
+            this.txtVpiIn.Size = new System.Drawing.Size(56, 20);
             this.txtVpiIn.TabIndex = 8;
+            this.txtVpiIn.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtVpiIn_KeyPress);
             // 
             // txtPortOut
             // 
-            this.txtPortOut.Location = new System.Drawing.Point(12, 172);
+            this.txtPortOut.Location = new System.Drawing.Point(81, 193);
             this.txtPortOut.Name = "txtPortOut";
-            this.txtPortOut.Size = new System.Drawing.Size(60, 20);
+            this.txtPortOut.Size = new System.Drawing.Size(56, 20);
             this.txtPortOut.TabIndex = 9;
+            this.txtPortOut.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtPortOut_KeyPress);
             // 
             // txtVpiOut
             // 
-            this.txtVpiOut.Location = new System.Drawing.Point(78, 172);
+            this.txtVpiOut.Location = new System.Drawing.Point(148, 193);
             this.txtVpiOut.Name = "txtVpiOut";
-            this.txtVpiOut.Size = new System.Drawing.Size(60, 20);
+            this.txtVpiOut.Size = new System.Drawing.Size(56, 20);
             this.txtVpiOut.TabIndex = 10;
+            this.txtVpiOut.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtVpiOut_KeyPress);
             // 
             // txtVciIn
             // 
-            this.txtVciIn.Location = new System.Drawing.Point(144, 128);
+            this.txtVciIn.Location = new System.Drawing.Point(215, 154);
             this.txtVciIn.Name = "txtVciIn";
-            this.txtVciIn.Size = new System.Drawing.Size(60, 20);
+            this.txtVciIn.Size = new System.Drawing.Size(56, 20);
             this.txtVciIn.TabIndex = 11;
-            this.txtVciIn.Text = "0";
+            this.txtVciIn.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtVciIn_KeyPress);
             // 
             // txtVciOut
             // 
-            this.txtVciOut.Location = new System.Drawing.Point(144, 172);
+            this.txtVciOut.Location = new System.Drawing.Point(215, 193);
             this.txtVciOut.Name = "txtVciOut";
-            this.txtVciOut.Size = new System.Drawing.Size(60, 20);
+            this.txtVciOut.Size = new System.Drawing.Size(56, 20);
             this.txtVciOut.TabIndex = 12;
-            this.txtVciOut.Text = "0";
+            this.txtVciOut.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtVciOut_KeyPress);
             // 
             // label1
             // 
@@ -183,7 +192,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 64);
+            this.label3.Location = new System.Drawing.Point(12, 137);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(36, 13);
             this.label3.TabIndex = 15;
@@ -192,7 +201,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 112);
+            this.label4.Location = new System.Drawing.Point(78, 138);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(40, 13);
             this.label4.TabIndex = 16;
@@ -201,7 +210,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(75, 112);
+            this.label5.Location = new System.Drawing.Point(145, 138);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(38, 13);
             this.label5.TabIndex = 17;
@@ -210,7 +219,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(141, 112);
+            this.label6.Location = new System.Drawing.Point(212, 138);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(38, 13);
             this.label6.TabIndex = 18;
@@ -219,7 +228,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 156);
+            this.label7.Location = new System.Drawing.Point(78, 177);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(52, 13);
             this.label7.TabIndex = 19;
@@ -228,7 +237,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(78, 156);
+            this.label8.Location = new System.Drawing.Point(145, 177);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(50, 13);
             this.label8.TabIndex = 20;
@@ -237,7 +246,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(141, 156);
+            this.label9.Location = new System.Drawing.Point(212, 177);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(50, 13);
             this.label9.TabIndex = 21;
@@ -245,7 +254,7 @@
             // 
             // butRemove
             // 
-            this.butRemove.Location = new System.Drawing.Point(354, 112);
+            this.butRemove.Location = new System.Drawing.Point(301, 193);
             this.butRemove.Name = "butRemove";
             this.butRemove.Size = new System.Drawing.Size(75, 23);
             this.butRemove.TabIndex = 22;
@@ -255,16 +264,16 @@
             // 
             // txtRequest
             // 
-            this.txtRequest.Location = new System.Drawing.Point(9, 228);
+            this.txtRequest.Location = new System.Drawing.Point(9, 259);
             this.txtRequest.Name = "txtRequest";
-            this.txtRequest.Size = new System.Drawing.Size(420, 85);
+            this.txtRequest.Size = new System.Drawing.Size(367, 85);
             this.txtRequest.TabIndex = 23;
             this.txtRequest.Text = "";
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 212);
+            this.label10.Location = new System.Drawing.Point(12, 243);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(55, 13);
             this.label10.TabIndex = 24;
@@ -273,7 +282,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(12, 334);
+            this.label11.Location = new System.Drawing.Point(12, 347);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(57, 13);
             this.label11.TabIndex = 25;
@@ -282,7 +291,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(12, 454);
+            this.label12.Location = new System.Drawing.Point(12, 451);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(62, 13);
             this.label12.TabIndex = 26;
@@ -291,9 +300,9 @@
             // butEstablished
             // 
             this.butEstablished.Enabled = false;
-            this.butEstablished.Location = new System.Drawing.Point(293, 189);
+            this.butEstablished.Location = new System.Drawing.Point(156, 109);
             this.butEstablished.Name = "butEstablished";
-            this.butEstablished.Size = new System.Drawing.Size(136, 33);
+            this.butEstablished.Size = new System.Drawing.Size(125, 23);
             this.butEstablished.TabIndex = 27;
             this.butEstablished.Text = "ESTABLISHED";
             this.butEstablished.UseVisualStyleBackColor = true;
@@ -302,25 +311,68 @@
             // comboReq
             // 
             this.comboReq.FormattingEnabled = true;
-            this.comboReq.Location = new System.Drawing.Point(308, 162);
+            this.comboReq.Location = new System.Drawing.Point(12, 109);
             this.comboReq.Name = "comboReq";
             this.comboReq.Size = new System.Drawing.Size(121, 21);
             this.comboReq.TabIndex = 28;
+            this.comboReq.SelectedIndexChanged += new System.EventHandler(this.comboReq_SelectedIndexChanged);
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(305, 146);
+            this.label13.Location = new System.Drawing.Point(12, 93);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(55, 13);
+            this.label13.Size = new System.Drawing.Size(83, 13);
             this.label13.TabIndex = 29;
-            this.label13.Text = "Requests:";
+            this.label13.Text = "Active requests:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(12, 55);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(99, 13);
+            this.label14.TabIndex = 30;
+            this.label14.Text = "Active Connections";
+            // 
+            // comboTunnel
+            // 
+            this.comboTunnel.FormattingEnabled = true;
+            this.comboTunnel.Location = new System.Drawing.Point(12, 69);
+            this.comboTunnel.Name = "comboTunnel";
+            this.comboTunnel.Size = new System.Drawing.Size(121, 21);
+            this.comboTunnel.TabIndex = 31;
+            this.comboTunnel.SelectedIndexChanged += new System.EventHandler(this.comboTunnel_SelectedIndexChanged);
+            // 
+            // butDisconnect
+            // 
+            this.butDisconnect.Location = new System.Drawing.Point(156, 69);
+            this.butDisconnect.Name = "butDisconnect";
+            this.butDisconnect.Size = new System.Drawing.Size(125, 23);
+            this.butDisconnect.TabIndex = 32;
+            this.butDisconnect.Text = "DISCONNECT";
+            this.butDisconnect.UseVisualStyleBackColor = true;
+            this.butDisconnect.Click += new System.EventHandler(this.butDisconnect_Click);
+            // 
+            // butClearNode
+            // 
+            this.butClearNode.Location = new System.Drawing.Point(15, 190);
+            this.butClearNode.Name = "butClearNode";
+            this.butClearNode.Size = new System.Drawing.Size(56, 23);
+            this.butClearNode.TabIndex = 33;
+            this.butClearNode.Text = "Clear";
+            this.butClearNode.UseVisualStyleBackColor = true;
+            this.butClearNode.Click += new System.EventHandler(this.butClearNode_Click);
             // 
             // ManagerX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(441, 576);
+            this.ClientSize = new System.Drawing.Size(386, 564);
+            this.Controls.Add(this.butClearNode);
+            this.Controls.Add(this.butDisconnect);
+            this.Controls.Add(this.comboTunnel);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.comboReq);
             this.Controls.Add(this.butEstablished);
@@ -354,6 +406,7 @@
             this.Name = "ManagerX";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ManagerX_FormClosed);
+            this.Load += new System.EventHandler(this.ManagerX_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -391,6 +444,10 @@
         private System.Windows.Forms.Button butEstablished;
         private System.Windows.Forms.ComboBox comboReq;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.ComboBox comboTunnel;
+        private System.Windows.Forms.Button butDisconnect;
+        private System.Windows.Forms.Button butClearNode;
     }
 }
 

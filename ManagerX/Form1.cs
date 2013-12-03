@@ -30,7 +30,6 @@ namespace ManagerX
         //auxiliary variables
         private Connection thisClient;
         private String srvMsg;
-        private int clientIndex;
 
         public ManagerX()
         {
@@ -38,6 +37,23 @@ namespace ManagerX
             //txtIP.Text = IPAddress.Any.ToString(); //nasluchuj na każdym interfejsie
             txtIP.Text = "127.0.0.1";
             txtPort.Text = 8002.ToString();
+
+            txtIP.ReadOnly = true;
+            txtPort.ReadOnly = true;
+
+            txtPortIn.ReadOnly = true;
+            txtVpiIn.ReadOnly = true;
+            txtVciIn.ReadOnly = true;
+            txtPortOut.ReadOnly = true;
+            txtVpiOut.ReadOnly = true;
+            txtVciOut.ReadOnly = true;
+            butAdd.Enabled = false;
+            butRemove.Enabled = false;
+
+            butClearNode.Enabled = false;
+
+            butEstablished.Enabled = false;
+            butDisconnect.Enabled = false;
         }
 
         delegate void initCallback();
@@ -65,8 +81,6 @@ namespace ManagerX
                 }
 
                 butConn.Text = "Shutdown Server"; //zmiana napisu na przycisku
-                txtIP.Enabled = false;
-                txtPort.Enabled = false;
                 isRunning = true; //teraz server chodzi :D
                 if (txtIP.Text == "0.0.0.0")
                     upLogBox("Awaiting connection on every interface @ port " + port + ", sir");
@@ -165,6 +179,7 @@ namespace ManagerX
 
                 comboConn.Items.Clear();
                 comboConn.SelectedIndex = -1;
+                comboConn.SelectedIndex = -1; // BUG
 
                 System.Object[] ItemObject = new System.Object[size];
                 int i = 0;
@@ -202,6 +217,7 @@ namespace ManagerX
 
                 comboReq.Items.Clear();
                 comboReq.SelectedIndex = -1;
+                comboReq.SelectedIndex = -1; // BUG
 
                 System.Object[] ItemObject = new System.Object[size];
                 int i = 0;
@@ -210,10 +226,9 @@ namespace ManagerX
                     if (req.isActive())
                     {
                         ComboboxItem item = new ComboboxItem();
-                        item.Text = req.calling.name + " to " + req.called;
+                        item.Text = req.calling + " to " + req.called;
                         item.Value = req.ID;
                         ItemObject[i] = item;
-                        //ItemObject[i] = req.calling.name;
                         i++;
                     }
                 }
@@ -228,15 +243,55 @@ namespace ManagerX
             }
         }
 
+        delegate void updateComboTunnelItemCallback();
+        public void updateComboTunnelItem()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new updateComboTunnelItemCallback(updateComboReqItem), new object[] { });
+            }
+            else
+            {
+                int size = 0;
+                foreach (Request req in requestList)
+                {
+                    if (!req.isActive() && !req.isDisconnected())
+                    {
+                        size++;
+                    }
+                }
+
+                comboTunnel.Items.Clear();
+                comboTunnel.SelectedIndex = -1;
+                comboTunnel.SelectedIndex = -1; // BUG
+
+                System.Object[] ItemObject = new System.Object[size];
+                int i = 0;
+                foreach (Request req in requestList)
+                {
+                    if (!req.isActive() && !req.isDisconnected())
+                    {
+                        ComboboxItem item = new ComboboxItem();
+                        item.Text = req.calling + " to " + req.called;
+                        item.Value = req.ID;
+                        ItemObject[i] = item;
+                        i++;
+                    }
+                }
+
+
+                comboTunnel.Items.AddRange(ItemObject);
+
+            }
+        }
+
         private void msgHandler(String srvMsg, String clientName)
         {
-            upLogBox(clientName.ToString());
-
+            
             foreach (Connection co in clientList)
             {
-                if (co.name.Equals(clientName))
+                if (co.name == clientName)
                 {
-                    upLogBox("FOUND");
                     thisClient = co;
                     break;
                 }
@@ -245,31 +300,33 @@ namespace ManagerX
             //thisClient = clientList.ElementAtOrDefault(clientIndex - 1);
             if (thisClient == null || !thisClient.isConnected())
             {
-                upLogBox("Client " + clientIndex + " is disconnected");
+                upLogBox("Client " + thisClient.ID + " is disconnected");
                 return;
             }
 
 
             thisClient.clientSender(srvMsg);
-            upRecvBox("<@Client " + clientIndex + "> " + srvMsg);
-            upLogBox("Message sent successfully to Client " + clientIndex);
+            upRecvBox("<@Client " + thisClient.name + "> " + srvMsg);
+            upLogBox("Message sent successfully to Client " + thisClient.name);
 
         }
 
         public void sendClientList(Connection rq)
         {
+            String msg = "";
+
             foreach (Connection co in clientList)
             {
                 if (co.type.Equals("client") && co.isConnected())
                 {
-                    rq.clientSender(co.name);
+                    msg += co.name + " ";
                 }
             }
 
-            rq.clientSender(" ");
+            rq.clientSender(msg);
         }
 
-        public void addReqToList(Connection calling, String called)
+        public void addReqToList(String calling, String called)
         {
             int ID = requestList.Count();
             requestList.Add(new Request(calling, called, ID));
@@ -318,32 +375,85 @@ namespace ManagerX
 
         private void butSend_Click(object sender, EventArgs e)
         {
-            srvMsg = "ADD " + txtPortIn.Text + " " + txtVpiIn.Text + "/" + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + "/" + txtVciOut.Text; //przechwyć wiadomość z SendBoxa
-            if (srvMsg == null) return;
-            txtPortIn.Clear(); //wyczyść SendBoxa
-            txtPortOut.Clear();
-            txtVpiIn.Clear();
-            txtVpiOut.Clear();
-            txtVciIn.Clear();
-            txtVciOut.Clear();
-            msgHandler(srvMsg, comboConn.SelectedItem.ToString()); //zrozum i obsłuż odpowiednio wiadomość
-            comboConn.SelectedIndex = -1;
-            comboConn.Focus(); //przywróć kursor znowu w pole wysyłania
+            if (txtPortIn.Text.Length != 0 && txtVpiIn.Text.Length != 0 && txtVciIn.Text.Length != 0 && txtPortOut.Text.Length != 0 && txtVpiOut.Text.Length != 0 && txtVciOut.Text.Length != 0)
+            {
+                srvMsg = "ADD " + txtPortIn.Text + " " + txtVpiIn.Text + " " + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + " " + txtVciOut.Text; //przechwyć wiadomość z SendBoxa
+                if (srvMsg == null) return;
+
+                if (comboReq.SelectedIndex != -1)
+                {
+
+                    foreach (Request req in requestList)
+                    {
+                        if (req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()))
+                        {
+                            req.commands.Add(comboConn.SelectedItem.ToString(), txtPortIn.Text + " " + txtVpiIn.Text + " " + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + " " + txtVciOut.Text);
+
+                            break;
+                        }
+                    }
+
+                }
+
+                txtPortIn.Clear(); //wyczyść SendBoxa
+                txtPortOut.Clear();
+                txtVpiIn.Clear();
+                txtVpiOut.Clear();
+                txtVciIn.Clear();
+                txtVciOut.Clear();
+
+                txtPortIn.ReadOnly = true;
+                txtVpiIn.ReadOnly = true;
+                txtVciIn.ReadOnly = true;
+                txtPortOut.ReadOnly = true;
+                txtVpiOut.ReadOnly = true;
+                txtVciOut.ReadOnly = true;
+                butAdd.Enabled = false;
+                butRemove.Enabled = false;
+
+                msgHandler(srvMsg, comboConn.SelectedItem.ToString()); //zrozum i obsłuż odpowiednio wiadomość
+                comboConn.SelectedIndex = -1;
+                comboConn.SelectedIndex = -1; // BUG
+                comboConn.Focus(); //przywróć kursor znowu w pole wysyłania
+            }
+            else
+            {
+                upLogBox("FILL ALL FIELDS BEFORE ADDING!");
+            }
         }
 
         private void butRemove_Click(object sender, EventArgs e)
         {
-            srvMsg = "DEL " + txtPortIn.Text + " " + txtVpiIn.Text + "/" + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + "/" + txtVciOut.Text; //przechwyć wiadomość z SendBoxa
-            if (srvMsg == null) return;
-            txtPortIn.Clear(); //wyczyść SendBoxa
-            txtPortOut.Clear();
-            txtVpiIn.Clear();
-            txtVpiOut.Clear();
-            txtVciIn.Clear();
-            txtVciOut.Clear();
-            msgHandler(srvMsg, comboConn.SelectedItem.ToString()); //zrozum i obsłuż odpowiednio wiadomość
-            comboConn.SelectedIndex = -1;
-            comboConn.Focus(); //przywróć kursor znowu w pole wysyłania
+            if (txtPortIn.Text.Length != 0 && txtVpiIn.Text.Length != 0 && txtVciIn.Text.Length != 0 && txtPortOut.Text.Length != 0 && txtVpiOut.Text.Length != 0 && txtVciOut.Text.Length != 0)
+            {
+                srvMsg = "DELETE " + txtPortIn.Text + " " + txtVpiIn.Text + " " + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + " " + txtVciOut.Text; //przechwyć wiadomość z SendBoxa
+                if (srvMsg == null) return;
+
+                txtPortIn.Clear(); //wyczyść SendBoxa
+                txtPortOut.Clear();
+                txtVpiIn.Clear();
+                txtVpiOut.Clear();
+                txtVciIn.Clear();
+                txtVciOut.Clear();
+
+                txtPortIn.ReadOnly = true;
+                txtVpiIn.ReadOnly = true;
+                txtVciIn.ReadOnly = true;
+                txtPortOut.ReadOnly = true;
+                txtVpiOut.ReadOnly = true;
+                txtVciOut.ReadOnly = true;
+                butAdd.Enabled = false;
+                butRemove.Enabled = false;
+
+                msgHandler(srvMsg, comboConn.SelectedItem.ToString()); //zrozum i obsłuż odpowiednio wiadomość
+                comboConn.SelectedIndex = -1;
+                comboConn.SelectedIndex = -1; // BUG
+                comboConn.Focus(); //przywróć kursor znowu w pole wysyłania
+            }
+            else
+            {
+                upLogBox("FILL ALL FIELDS BEFORE DELETING!");
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -354,14 +464,197 @@ namespace ManagerX
             {
                 if (req.ID == requestID)
                 {
-                    //upLogBox("FOUND REQ");
-                    msgHandler("ESTABLISHED", req.calling.name);
+                    msgHandler("ESTABLISHED", req.calling);
                     req.deactivate();
                     updateComboReqItem();
+                    comboReq.SelectedIndex = -1;
+                    comboReq.SelectedIndex = -1;
+                    updateComboTunnelItem();
                     break;
                 }
             }
         }
+
+        private void ManagerX_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboReq_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBox = (ComboBox) sender;
+
+            if (comboBox.SelectedIndex != -1)
+            {
+                butEstablished.Enabled = true;
+            }
+            else
+            {
+                butEstablished.Enabled = false;
+            }
+        }
+
+        private void comboConn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+
+            if (comboBox.SelectedIndex != -1)
+            {
+                txtPortIn.ReadOnly = false;
+                txtVpiIn.ReadOnly = false;
+                txtVciIn.ReadOnly = false;
+                txtPortOut.ReadOnly = false;
+                txtVpiOut.ReadOnly = false;
+                txtVciOut.ReadOnly = false;
+                butAdd.Enabled = true;
+                butRemove.Enabled = true;
+                butClearNode.Enabled = true;
+            }
+            else
+            {
+                txtPortIn.ReadOnly = true;
+                txtVpiIn.ReadOnly = true;
+                txtVciIn.ReadOnly = true;
+                txtPortOut.ReadOnly = true;
+                txtVpiOut.ReadOnly = true;
+                txtVciOut.ReadOnly = true;
+                butAdd.Enabled = false;
+                butRemove.Enabled = false;
+                butClearNode.Enabled = false;
+            }
+            
+        }
+
+        private void butClearNode_Click(object sender, EventArgs e)
+        {
+            msgHandler("CLEAR", comboConn.SelectedItem.ToString());
+        }
+
+        private void comboTunnel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+
+            if (comboBox.SelectedIndex != -1)
+            {
+                butDisconnect.Enabled = true;
+            }
+            else
+            {
+                butDisconnect.Enabled = false;
+            }
+        }
+
+        private void butDisconnect_Click(object sender, EventArgs e)
+        {
+            int tunnelID = Convert.ToInt32((comboTunnel.SelectedItem as ComboboxItem).Value.ToString());
+
+            foreach (Request req in requestList)
+            {
+                if (req.ID == tunnelID)
+                {
+                    foreach (KeyValuePair<string, string> pair in req.commands)
+                    {
+                        String msg = "DELETE " + pair.Value;
+                        msgHandler(msg, pair.Key);
+                    }
+
+                    req.disconnect();
+                    updateComboTunnelItem();
+                    break;
+                }
+            }
+        }
+
+        private void txtPortIn_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar)  && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtVpiIn_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtVciIn_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtPortOut_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtVpiOut_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtVciOut_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if (e.KeyChar == '.'
+                && (sender as TextBox).Text.IndexOf('.') > -1)
+            {
+                e.Handled = true;
+            }
+        }
+
     }
 
     public class Connection
@@ -424,22 +717,20 @@ namespace ManagerX
                         serverForm.upRecvBox("Transport " + name + " logged in");
                         clientSender("LOGGED");
                     }
-                    else if (theString == "REQ_CALL")
+                    else if (theString == "CALL")
                     {
                         if (type.Equals("client"))
                         {
-                            
                             String called = streamReader.ReadLine();
-                            serverForm.addReqToList(this, called);
+                            serverForm.addReqToList(this.name, called);
                             serverForm.upRequestBox("Client " + name + " requested call with client " + called);
-
                         }
                         else
                         {
                             serverForm.upRequestBox("Transport node cannot make calls...");
                         }
                     }
-                    else if (theString == "REQ_CLIENTS")
+                    else if (theString == "GET_CLIENTS")
                     {
                         serverForm.sendClientList(this);
                     }
@@ -462,7 +753,6 @@ namespace ManagerX
             }
         }
 
-        //Serializacja
         public void clientSender(String srvMsg)
         {
             System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(netStream);
@@ -482,17 +772,21 @@ namespace ManagerX
     public class Request
     {
 
-        public Connection calling { get; private set; }
-        public String called { get; private set; }
-        public int ID { get; private set; }
+        public String calling;
+        public String called;
+        public int ID;
         private Boolean active;
+        private Boolean disconnected;
+        public Dictionary<String, String> commands;
 
-        public Request(Connection calling, String called, int ID)
+        public Request(String calling, String called, int ID)
         {
             this.ID = ID;
             this.calling = calling;
             this.called = called;
             this.active = true;
+            this.commands = new Dictionary<string, string>();
+            this.disconnected = false;
         }
 
         public Boolean isActive()
@@ -503,6 +797,16 @@ namespace ManagerX
         public void deactivate()
         {
             active = false;
+        }
+
+        public Boolean isDisconnected()
+        {
+            return disconnected;
+        }
+
+        public void disconnect()
+        {
+            disconnected = true;
         }
     }
 
