@@ -712,7 +712,7 @@ namespace ManagerX
                     {
                         name = streamReader.ReadLine();
                         type = "transport";
-
+                        //dupa
                         serverForm.updateComboConnItem();
                         serverForm.upRecvBox("Transport " + name + " logged in");
                         clientSender("LOGGED");
