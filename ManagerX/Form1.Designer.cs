@@ -595,7 +595,7 @@
             this.Controls.Add(this.txtIP);
             this.Controls.Add(this.butConn);
             this.Name = "ManagerX";
-            this.Text = "Form1";
+            this.Text = "Managerix";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ManagerX_FormClosed);
             this.Load += new System.EventHandler(this.ManagerX_Load);
             this.groupBox1.ResumeLayout(false);

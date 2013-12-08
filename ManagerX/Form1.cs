@@ -328,7 +328,7 @@ namespace ManagerX
 
         public void sendClientList(Connection rq)
         {
-            String msg = "";
+            String msg = "CLIENTS ";
 
             foreach (Connection co in clientList)
             {
