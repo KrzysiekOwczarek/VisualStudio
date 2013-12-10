@@ -21,7 +21,7 @@ namespace ManagerX
         private TcpListener serverSocket; //gniazdko sieciowe na połaczenia TCP (prawie jak ServerSocket w javie)
         private TcpClient clientSocket; //przedstawienie klienta po stronie servera (w prawie jak Socket w javie)
         private Thread ConnThread; //wątek służący do odbierania połączeń
-        private List<Connection> clientList;//lista klientów (byłych i obecnych, rozłączeni nie są usówani tylko mają status disconnected)
+        public List<Connection> clientList;//lista klientów (byłych i obecnych, rozłączeni nie są usówani tylko mają status disconnected)
         private List<Request> requestList;
         private int iD; //ID nowego klienta
         public bool isRunning { get; private set; } //info czy server chodzi
@@ -40,7 +40,6 @@ namespace ManagerX
             txtIP.ReadOnly = true;
             txtPort.ReadOnly = true;
             butEstablished.Enabled = false;
-            butDisconnect.Enabled = false;
 
         }
 
@@ -203,38 +202,15 @@ namespace ManagerX
                 comboReq.SelectedIndex = comboReq.Items.Count - 1;
 
                 if (comboReq.Items.Count == 0)
-                    butEstablished.Enabled = false;
-                else
-                    butEstablished.Enabled = true;
-            }
-        }
-
-        delegate void updateComboTunnelItemCallback();
-        public void updateComboTunnelItem()
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new updateComboTunnelItemCallback(updateComboTunnelItem), new object[] { });
-            }
-            else
-            {
-
-                var temp = requestList.FindAll(req => !req.isActive() && !req.isDisconnected());
-
-                comboTunnel.Items.Clear();
-
-                System.Object[] ItemObject = new System.Object[temp.Count];
-                int i = 0;
-                foreach (Request req in temp)
                 {
-                    ComboboxItem item = new ComboboxItem();
-                    item.Text = req.calling + " to " + req.called;
-                    item.Value = req.ID;
-                    ItemObject[i] = item;
-                    i++;
+                    butEstablished.Enabled = false;
+                    butLoad.Enabled = false;
                 }
-
-                comboTunnel.Items.AddRange(ItemObject);
+                else
+                {
+                    butEstablished.Enabled = true;
+                    butLoad.Enabled = true;
+                }
             }
         }
 
@@ -255,7 +231,7 @@ namespace ManagerX
         private void msgHandler(String srvMsg, String clientName)
         {
 
-            var temp = clientList.Find(co => co.name == clientName);
+            var temp = clientList.Find(co => co.name == clientName && co.isConnected());
 
             if (temp != null)
                 thisClient = temp;
@@ -270,6 +246,7 @@ namespace ManagerX
             thisClient.clientSender(srvMsg);
             upRecvBox("<@Client " + thisClient.name + "> " + srvMsg);
             upLogBox("Message sent successfully to Client " + thisClient.name);
+            thisClient = null;
 
         }
 
@@ -412,7 +389,6 @@ namespace ManagerX
 
                     temp.deactivate();
                     updateComboReqItem();
-                    updateComboTunnelItem();
                 }
 
                 callingPortTxt.Clear(); //wyczyść SendBoxa
@@ -438,41 +414,6 @@ namespace ManagerX
             msgHandler("CLEAR", comboTrans.SelectedItem.ToString());
         }
 
-        private void comboTunnel_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ComboBox comboBox = (ComboBox)sender;
-
-            if (comboBox.SelectedIndex != -1)
-            {
-                butDisconnect.Enabled = true;
-            }
-            else
-            {
-                butDisconnect.Enabled = false;
-            }
-        }
-
-        private void butDisconnect_Click(object sender, EventArgs e)
-        {
-            
-            var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboTunnel.SelectedItem as ComboboxItem).Value.ToString()));
-
-            if (temp != null)
-            {
-                foreach (String command in temp.commands)
-                {
-                    String[] parts = command.Split(',');
-                    msgHandler(parts[1], parts[0]);
-                }
-
-                temp.disconnect();
-                updateComboTunnelItem();
-            }
-
-        }
-
-       
-
         public void disconnect(String clientB)
         {
             var temp = requestList.Find(req => !req.isActive() && !req.isDisconnected() && (req.called.Equals(clientB) || req.calling.Equals(clientB)));
@@ -486,7 +427,6 @@ namespace ManagerX
                 }
 
                 temp.disconnect();
-                updateComboTunnelItem();
             }
 
         }
@@ -499,6 +439,11 @@ namespace ManagerX
             if (temp != null)
                 updateClientsItem(temp.calling, temp.called);
 
+            if (((ComboBox)sender).SelectedIndex != -1)
+                butLoad.Enabled = true;
+            else
+                butLoad.Enabled = false;
+
         }
 
         
@@ -506,7 +451,7 @@ namespace ManagerX
         public Boolean nameAvCk(String name, String type)
         {
 
-            var temp = clientList.FindAll(co => co.type != null && co.name != null && co.type.Equals(type) && co.name.Equals(name));
+            var temp = clientList.FindAll(co => co.type != null && co.name != null && co.isConnected() && co.type.Equals(type) && co.name.Equals(name));
 
             if (temp != null && temp.Count != 0)
                 return false;
@@ -694,6 +639,63 @@ namespace ManagerX
             }
         }
 
+        private void butLoad_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                System.IO.StreamReader sr = new
+                   System.IO.StreamReader(openFileDialog1.FileName);
+               
+                var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()));
+                temp.deactivate();
+                updateComboReqItem();
+                updateClientsItem(null, null);
+
+                string[] temps;
+
+                if (temp != null)
+                {
+
+                    String line;
+
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        temps = line.Split(':');
+
+                        try
+                        {
+                            msgHandler(temps[1], temps[0]);
+
+                            try
+                            {
+                                string[] splitted = temps[1].Split(' ');
+
+                                if (!splitted[0].Equals("ESTABLISHED"))
+                                    temp.commands.Add(temps[0] + "," + temps[1].Replace("ADD", "DELETE"));
+                                else
+                                    temp.commands.Add(temps[0] + ",DELETE " + splitted[2] + " " + splitted[3] + " " + splitted[4]);
+                            }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                            }
+                        }
+                        catch
+                        {
+                            upLogBox("MSG to " + temps[0] + ": " + temps[1] + "could not be sent...");
+                            upLogBox("Your file syntax is WRONG, clients with those names do not exist...?");
+
+                            disconnect(temp.called);
+                            
+                            break;
+                        }
+                    }
+                }
+
+                sr.Close();
+            }
+        }
+
     }
 
     public class Connection
@@ -809,6 +811,8 @@ namespace ManagerX
                     serverForm.updatecomboTransItem();
                     serverForm.upRecvBox("Client " + name + " disconnected");
                     serverForm.upLogBox("Connection with client " + ID + " lost, sir");
+                    this.name = null;
+                    this.type = null;
                 }
             }
             finally

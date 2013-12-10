@@ -58,9 +58,6 @@
             this.butEstablished = new System.Windows.Forms.Button();
             this.comboReq = new System.Windows.Forms.ComboBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.comboTunnel = new System.Windows.Forms.ComboBox();
-            this.butDisconnect = new System.Windows.Forms.Button();
             this.butClearNode = new System.Windows.Forms.Button();
             this.callingTxt = new System.Windows.Forms.TextBox();
             this.calledPortTxt = new System.Windows.Forms.TextBox();
@@ -80,6 +77,8 @@
             this.label23 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.butLoad = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -96,7 +95,7 @@
             // 
             // txtIP
             // 
-            this.txtIP.Location = new System.Drawing.Point(12, 32);
+            this.txtIP.Location = new System.Drawing.Point(7, 33);
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(125, 20);
             this.txtIP.TabIndex = 1;
@@ -193,7 +192,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 16);
+            this.label1.Location = new System.Drawing.Point(9, 16);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 13);
             this.label1.TabIndex = 13;
@@ -202,7 +201,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(153, 16);
+            this.label2.Location = new System.Drawing.Point(162, 16);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 13);
             this.label2.TabIndex = 14;
@@ -330,7 +329,7 @@
             // comboReq
             // 
             this.comboReq.FormattingEnabled = true;
-            this.comboReq.Location = new System.Drawing.Point(7, 107);
+            this.comboReq.Location = new System.Drawing.Point(7, 85);
             this.comboReq.Name = "comboReq";
             this.comboReq.Size = new System.Drawing.Size(121, 21);
             this.comboReq.TabIndex = 28;
@@ -339,39 +338,11 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(9, 93);
+            this.label13.Location = new System.Drawing.Point(10, 69);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(83, 13);
+            this.label13.Size = new System.Drawing.Size(99, 13);
             this.label13.TabIndex = 29;
-            this.label13.Text = "Active requests:";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 55);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(99, 13);
-            this.label14.TabIndex = 30;
-            this.label14.Text = "Active Connections";
-            // 
-            // comboTunnel
-            // 
-            this.comboTunnel.FormattingEnabled = true;
-            this.comboTunnel.Location = new System.Drawing.Point(12, 69);
-            this.comboTunnel.Name = "comboTunnel";
-            this.comboTunnel.Size = new System.Drawing.Size(121, 21);
-            this.comboTunnel.TabIndex = 31;
-            this.comboTunnel.SelectedIndexChanged += new System.EventHandler(this.comboTunnel_SelectedIndexChanged);
-            // 
-            // butDisconnect
-            // 
-            this.butDisconnect.Location = new System.Drawing.Point(156, 69);
-            this.butDisconnect.Name = "butDisconnect";
-            this.butDisconnect.Size = new System.Drawing.Size(125, 23);
-            this.butDisconnect.TabIndex = 32;
-            this.butDisconnect.Text = "DISCONNECT";
-            this.butDisconnect.UseVisualStyleBackColor = true;
-            this.butDisconnect.Click += new System.EventHandler(this.butDisconnect_Click);
+            this.label13.Text = "Active call requests";
             // 
             // butClearNode
             // 
@@ -571,16 +542,29 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Client Nodes";
             // 
+            // butLoad
+            // 
+            this.butLoad.Enabled = false;
+            this.butLoad.Location = new System.Drawing.Point(156, 85);
+            this.butLoad.Name = "butLoad";
+            this.butLoad.Size = new System.Drawing.Size(125, 23);
+            this.butLoad.TabIndex = 54;
+            this.butLoad.Text = "Load scenario from file";
+            this.butLoad.UseVisualStyleBackColor = true;
+            this.butLoad.Click += new System.EventHandler(this.butLoad_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
             // ManagerX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(386, 700);
+            this.Controls.Add(this.butLoad);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.butDisconnect);
-            this.Controls.Add(this.comboTunnel);
-            this.Controls.Add(this.label14);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.comboReq);
             this.Controls.Add(this.label12);
@@ -638,9 +622,6 @@
         private System.Windows.Forms.Button butEstablished;
         private System.Windows.Forms.ComboBox comboReq;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.ComboBox comboTunnel;
-        private System.Windows.Forms.Button butDisconnect;
         private System.Windows.Forms.Button butClearNode;
         private System.Windows.Forms.TextBox callingTxt;
         private System.Windows.Forms.TextBox calledPortTxt;
@@ -660,6 +641,8 @@
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button butLoad;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }
 
