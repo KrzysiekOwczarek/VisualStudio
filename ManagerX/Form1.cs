@@ -34,24 +34,11 @@ namespace ManagerX
         public ManagerX()
         {
             InitializeComponent();
-            //txtIP.Text = IPAddress.Any.ToString(); //nasluchuj na każdym interfejsie
             txtIP.Text = "127.0.0.1";
             txtPort.Text = 8002.ToString();
 
             txtIP.ReadOnly = true;
             txtPort.ReadOnly = true;
-
-            /*txtPortIn.ReadOnly = true;
-            txtVpiIn.ReadOnly = true;
-            txtVciIn.ReadOnly = true;
-            txtPortOut.ReadOnly = true;
-            txtVpiOut.ReadOnly = true;
-            txtVciOut.ReadOnly = true;*/
-            //butAdd.Enabled = false;
-            //butRemove.Enabled = false;
-
-            //butClearNode.Enabled = false;
-
             butEstablished.Enabled = false;
             butDisconnect.Enabled = false;
 
@@ -121,7 +108,6 @@ namespace ManagerX
             {
                 if (text.ElementAt(text.Length - 1) != '\n')
                     txtRequest.AppendText(DateTime.Now.ToString(@"h\:mm\:ss tt") + " => " + text + "\n");
-                //DateTime.Now.ToString(@"MM\/dd\/yyyy h\:mm tt")
                 else txtRequest.AppendText(text);
                 txtRequest.ScrollToCaret();
             }
@@ -138,7 +124,6 @@ namespace ManagerX
             {
                 if (text.ElementAt(text.Length - 1) != '\n')
                     txtLog.AppendText(DateTime.Now.ToString(@"h\:mm\:ss tt") + " => " + text + "\n");
-                //DateTime.Now.ToString(@"MM\/dd\/yyyy h\:mm tt")
                 else txtLog.AppendText(text);
                 txtLog.ScrollToCaret();
             }
@@ -163,32 +148,23 @@ namespace ManagerX
         delegate void updatecomboTransItemCallback();
         public void updatecomboTransItem()
         {
+           
             if (this.InvokeRequired)
             {
                 this.Invoke(new updatecomboTransItemCallback(updatecomboTransItem), new object[] { });
             }
             else
-            {
-                int size = 0;
-                foreach (Connection co in clientList)
-                {
-                    if (co.isConnected() && co.type.Equals("transport"))
-                    {
-                        size++;
-                    }
-                }
+            { 
+                var temp = clientList.FindAll(co => co.type == "transport" && co.isConnected());
 
                 comboTrans.Items.Clear();
 
-                System.Object[] ItemObject = new System.Object[size];
+                System.Object[] ItemObject = new System.Object[temp.Count];
                 int i = 0;
-                foreach (Connection co in clientList)
+                foreach (Connection co in temp)
                 {
-                    if (co.isConnected() && co.type.Equals("transport"))
-                    {
-                        ItemObject[i] = co.name;
-                        i++;
-                    }
+                    ItemObject[i] = co.name;
+                    i++;
                 }
 
 
@@ -207,32 +183,21 @@ namespace ManagerX
             }
             else
             {
-                int size = 0;
-                foreach (Request req in requestList)
-                {
-                    if (req.isActive())
-                    {
-                        size++;
-                    }
-                }
+
+                var temp = requestList.FindAll(req => req.isActive());
 
                 comboReq.Items.Clear();
-                
 
-                System.Object[] ItemObject = new System.Object[size];
+                System.Object[] ItemObject = new System.Object[temp.Count];
                 int i = 0;
-                foreach (Request req in requestList)
+                foreach (Request req in temp)
                 {
-                    if (req.isActive())
-                    {
-                        ComboboxItem item = new ComboboxItem();
-                        item.Text = req.calling + " to " + req.called;
-                        item.Value = req.ID;
-                        ItemObject[i] = item;
-                        i++;
-                    }
+                    ComboboxItem item = new ComboboxItem();
+                    item.Text = req.calling + " to " + req.called;
+                    item.Value = req.ID;
+                    ItemObject[i] = item;
+                    i++;
                 }
-
 
                 comboReq.Items.AddRange(ItemObject);
                 comboReq.SelectedIndex = comboReq.Items.Count - 1;
@@ -249,40 +214,27 @@ namespace ManagerX
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new updateComboTunnelItemCallback(updateComboReqItem), new object[] { });
+                this.Invoke(new updateComboTunnelItemCallback(updateComboTunnelItem), new object[] { });
             }
             else
             {
-                int size = 0;
-                foreach (Request req in requestList)
-                {
-                    if (!req.isActive() && !req.isDisconnected())
-                    {
-                        size++;
-                    }
-                }
+
+                var temp = requestList.FindAll(req => !req.isActive() && !req.isDisconnected());
 
                 comboTunnel.Items.Clear();
-                comboTunnel.SelectedIndex = -1;
-                comboTunnel.SelectedIndex = -1; // BUG
 
-                System.Object[] ItemObject = new System.Object[size];
+                System.Object[] ItemObject = new System.Object[temp.Count];
                 int i = 0;
-                foreach (Request req in requestList)
+                foreach (Request req in temp)
                 {
-                    if (!req.isActive() && !req.isDisconnected())
-                    {
-                        ComboboxItem item = new ComboboxItem();
-                        item.Text = req.calling + " to " + req.called;
-                        item.Value = req.ID;
-                        ItemObject[i] = item;
-                        i++;
-                    }
+                    ComboboxItem item = new ComboboxItem();
+                    item.Text = req.calling + " to " + req.called;
+                    item.Value = req.ID;
+                    ItemObject[i] = item;
+                    i++;
                 }
 
-
                 comboTunnel.Items.AddRange(ItemObject);
-
             }
         }
 
@@ -302,17 +254,12 @@ namespace ManagerX
 
         private void msgHandler(String srvMsg, String clientName)
         {
-            
-            foreach (Connection co in clientList)
-            {
-                if (co.name == clientName)
-                {
-                    thisClient = co;
-                    break;
-                }
-            }
 
-            //thisClient = clientList.ElementAtOrDefault(clientIndex - 1);
+            var temp = clientList.Find(co => co.name == clientName);
+
+            if (temp != null)
+                thisClient = temp;
+
             if (thisClient == null || !thisClient.isConnected())
             {
                 upLogBox("Client " + thisClient.ID + " is disconnected");
@@ -330,12 +277,11 @@ namespace ManagerX
         {
             String msg = "CLIENTS ";
 
-            foreach (Connection co in clientList)
+            var temp = clientList.FindAll(co => co.type == "client" && co.isConnected());
+
+            foreach (Connection co in temp)
             {
-                if (co.type.Equals("client") && co.isConnected())
-                {
-                    msg += co.name + " ";
-                }
+                msg += co.name + " ";
             }
 
             rq.clientSender(msg);
@@ -397,17 +343,10 @@ namespace ManagerX
 
                 if (comboReq.SelectedIndex != -1)
                 {
+                    var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()));
 
-                    foreach (Request req in requestList)
-                    {
-                        if (req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()))
-                        {
-                            //DO POPRAWKI
-                            req.commands.Add(comboTrans.SelectedItem.ToString() + ",DELETE " +txtPortIn.Text + " " + txtVpiIn.Text + " " + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + " " + txtVciOut.Text);
-
-                            break;
-                        }
-                    }
+                    if(temp != null)
+                        temp.commands.Add(comboTrans.SelectedItem.ToString() + ",DELETE " + txtPortIn.Text + " " + txtVpiIn.Text + " " + txtVciIn.Text + " " + txtPortOut.Text + " " + txtVpiOut.Text + " " + txtVciOut.Text);
 
                 }
 
@@ -454,30 +393,26 @@ namespace ManagerX
 
             if (callingPortTxt.Text.Length != 0 && callingVpiTxt.Text.Length != 0 && callingVciTxt.Text.Length != 0 && calledPortTxt.Text.Length != 0 && calledVpiTxt.Text.Length != 0 && calledVciTxt.Text.Length != 0)
             {
-                int reqID = Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString());
                 
-                foreach (Request req in requestList)
+                var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()));
+
+                if (temp != null)
                 {
-                    if (req.ID == reqID)
+                    String callingMsg = "ESTABLISHED " + temp.called + " " + callingPortTxt.Text + " " + callingVpiTxt.Text + " " + callingVciTxt.Text;
+                    String calledMsg = "ESTABLISHED " + temp.calling + " " + calledPortTxt.Text + " " + calledVpiTxt.Text + " " + calledVciTxt.Text;
+
+                    msgHandler(callingMsg, temp.calling);
+                    msgHandler(calledMsg, temp.called);
+
+                    if (comboReq.SelectedIndex != -1)
                     {
-
-                        String callingMsg = "ESTABLISHED " + req.called + " " + callingPortTxt.Text + " " + callingVpiTxt.Text + " " + callingVciTxt.Text;
-                        String calledMsg = "ESTABLISHED " + req.calling + " " + calledPortTxt.Text + " " + calledVpiTxt.Text + " " + calledVciTxt.Text;
-
-                        msgHandler(callingMsg, req.calling);
-                        msgHandler(calledMsg, req.called);
-
-                        if (comboReq.SelectedIndex != -1)
-                        {          
-                            req.commands.Add(callingTxt.Text + ",DELETE " + callingPortTxt.Text + " " + callingVpiTxt.Text + " " + callingVciTxt.Text);
-                            req.commands.Add(calledTxt.Text + ",DELETE " + calledPortTxt.Text + " " + calledVpiTxt.Text + " " + calledVciTxt.Text);
-                        }
-
-                        req.deactivate();
-                        updateComboReqItem();
-                        updateComboTunnelItem();
-                        break;
+                        temp.commands.Add(callingTxt.Text + ",DELETE " + callingPortTxt.Text + " " + callingVpiTxt.Text + " " + callingVciTxt.Text);
+                        temp.commands.Add(calledTxt.Text + ",DELETE " + calledPortTxt.Text + " " + calledVpiTxt.Text + " " + calledVciTxt.Text);
                     }
+
+                    temp.deactivate();
+                    updateComboReqItem();
+                    updateComboTunnelItem();
                 }
 
                 callingPortTxt.Clear(); //wyczyść SendBoxa
@@ -497,12 +432,6 @@ namespace ManagerX
                 upLogBox("FILL ALL THE BLANKS!");
             }
         }
-
-        private void ManagerX_Load(object sender, EventArgs e)
-        {
-
-        }
-
 
         private void butClearNode_Click(object sender, EventArgs e)
         {
@@ -525,28 +454,69 @@ namespace ManagerX
 
         private void butDisconnect_Click(object sender, EventArgs e)
         {
-            int tunnelID = Convert.ToInt32((comboTunnel.SelectedItem as ComboboxItem).Value.ToString());
+            
+            var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboTunnel.SelectedItem as ComboboxItem).Value.ToString()));
 
-            foreach (Request req in requestList)
+            if (temp != null)
             {
-                if (req.ID == tunnelID)
+                foreach (String command in temp.commands)
                 {
-                    foreach (String command in req.commands)
-                    {
-                        String[] parts = command.Split(',');
-                        msgHandler(parts[1], parts[0]);
-                    }
+                    String[] parts = command.Split(',');
+                    msgHandler(parts[1], parts[0]);
+                }
 
-                    req.disconnect();
-                    updateComboTunnelItem();
-                    break;
-                }          
+                temp.disconnect();
+                updateComboTunnelItem();
             }
+
+        }
+
+       
+
+        public void disconnect(String clientB)
+        {
+            var temp = requestList.Find(req => !req.isActive() && !req.isDisconnected() && (req.called.Equals(clientB) || req.calling.Equals(clientB)));
+
+            if (temp != null)
+            {
+                foreach (String command in temp.commands)
+                {
+                    String[] parts = command.Split(',');
+                    msgHandler(parts[1], parts[0]);
+                }
+
+                temp.disconnect();
+                updateComboTunnelItem();
+            }
+
+        }
+
+        private void comboReq_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+            var temp = requestList.Find(req => req.ID == Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString()));
+
+            if (temp != null)
+                updateClientsItem(temp.calling, temp.called);
+
+        }
+
+        
+
+        public Boolean nameAvCk(String name, String type)
+        {
+
+            var temp = clientList.FindAll(co => co.type != null && co.name != null && co.type.Equals(type) && co.name.Equals(name));
+
+            if (temp != null && temp.Count != 0)
+                return false;
+
+            return true;
         }
 
         private void txtPortIn_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar)  && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
             {
                 e.Handled = true;
             }
@@ -626,46 +596,11 @@ namespace ManagerX
                 e.Handled = true;
             }
 
-            
+
             if (e.KeyChar == '.'
                 && (sender as TextBox).Text.IndexOf('.') > -1)
             {
                 e.Handled = true;
-            }
-        }
-
-        public void disconnect(String clientB)
-        {
-            foreach (Request req in requestList)
-            {
-                if (!req.isActive() && !req.isDisconnected() && (req.called.Equals(clientB) || req.calling.Equals(clientB)))
-                {
-                    foreach (String command in req.commands)
-                    {
-                        String[] parts = command.Split(',');
-                        msgHandler(parts[1], parts[0]);
-                    }
-
-                    req.disconnect();
-                    updateComboTunnelItem();
-                    break;
-                }
-
-            }
-        }
-
-        private void comboReq_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int reqID =  Convert.ToInt32((comboReq.SelectedItem as ComboboxItem).Value.ToString());
-
-            foreach (Request req in requestList)
-            {
-                if (req.ID == reqID)
-                {
-                    updateClientsItem(req.calling, req.called);
-
-                    break;
-                }
             }
         }
 
@@ -757,21 +692,6 @@ namespace ManagerX
             {
                 e.Handled = true;
             }
-        }
-
-        public Boolean nameAvCk(String name, String type)
-        {
-
-            foreach (Connection co in clientList)
-            {
-                if (co.type != null && co.name != null && co.type.Equals(type) && co.name.Equals(name))
-                {
-                    upLogBox("UPA");
-                    return false;
-                }
-            }
-
-            return true;
         }
 
     }
