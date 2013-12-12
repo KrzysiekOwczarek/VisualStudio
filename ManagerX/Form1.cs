@@ -339,7 +339,7 @@ namespace ManagerX
             }
             else
             {
-                upLogBox("FILL ALL FIELDS BEFORE ADDING!");
+                upLogBox("Fill all the fields before Adding...");
             }
         }
 
@@ -361,7 +361,7 @@ namespace ManagerX
             }
             else
             {
-                upLogBox("FILL ALL FIELDS BEFORE DELETING!");
+                upLogBox("Fill all the fields before deleting...");
             }
         }
 
@@ -405,7 +405,7 @@ namespace ManagerX
             }
             else
             {
-                upLogBox("FILL ALL THE BLANKS!");
+                upLogBox("Fill all the fields before establishing...");
             }
         }
 
@@ -682,7 +682,7 @@ namespace ManagerX
                         }
                         catch
                         {
-                            upLogBox("MSG to " + temps[0] + ": " + temps[1] + "could not be sent...");
+                            upLogBox("MSG to " + temps[0] + ": " + temps[1] + " could not be sent...");
                             upLogBox("Your file syntax is WRONG, clients with those names do not exist...?");
 
                             disconnect(temp.called);
